@@ -326,7 +326,7 @@ class SignedTransaction(GrapheneObject):
                     #
                     lenR = sigder[3]
                     lenS = sigder[5 + lenR]
-                    if lenR is 32 and lenS is 32:
+                    if int(lenR) == 32 and int(lenS) == 32:
                         # Derive the recovery parameter
                         #
                         i = self.recoverPubkeyParameter(

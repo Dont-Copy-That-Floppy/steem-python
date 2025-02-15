@@ -15,7 +15,7 @@ from langdetect import DetectorFactory, detect
 from langdetect.lang_detect_exception import LangDetectException
 from toolz import update_in, assoc
 
-if sys.version >= '3.0':
+if sys.version >= "3.0":
     from urllib.parse import urlparse
 else:
     from urlparse import urlparse
@@ -24,9 +24,7 @@ logger = logging.getLogger(__name__)
 
 # https://github.com/matiasb/python-unidiff/blob/master/unidiff/constants.py#L37
 # @@ (source offset, length) (target offset, length) @@ (section header)
-RE_HUNK_HEADER = re.compile(
-    r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))?\ @@[ ]?(.*)$",
-    flags=re.MULTILINE)
+RE_HUNK_HEADER = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))?\ @@[ ]?(.*)$", flags=re.MULTILINE)
 
 # ensure deterministec language detection
 DetectorFactory.seed = 0
@@ -82,34 +80,29 @@ def chunkify(iterable, chunksize=10000):
 
 def ensure_decoded(thing):
     if not thing:
-        logger.debug('ensure_decoded thing is logically False')
+        logger.debug("ensure_decoded thing is logically False")
         return None
     if isinstance(thing, (list, dict)):
-        logger.debug('ensure_decoded thing is already decoded')
+        logger.debug("ensure_decoded thing is already decoded")
         return thing
     single_encoded_dict = double_encoded_dict = None
     try:
         single_encoded_dict = json.loads(thing)
         if isinstance(single_encoded_dict, dict):
-            logger.debug('ensure_decoded thing is single encoded dict')
+            logger.debug("ensure_decoded thing is single encoded dict")
             return single_encoded_dict
         elif isinstance(single_encoded_dict, str):
-            logger.debug('ensure_decoded thing is single encoded str')
+            logger.debug("ensure_decoded thing is single encoded str")
             if single_encoded_dict == "":
-                logger.debug(
-                    'ensure_decoded thing is single encoded str == ""')
+                logger.debug('ensure_decoded thing is single encoded str == ""')
                 return None
             else:
                 double_encoded_dict = json.loads(single_encoded_dict)
-                logger.debug('ensure_decoded thing is double encoded')
+                logger.debug("ensure_decoded thing is double encoded")
                 return double_encoded_dict
     except Exception as e:
-        extra = dict(
-            thing=thing,
-            single_encoded_dict=single_encoded_dict,
-            double_encoded_dict=double_encoded_dict,
-            error=e)
-        logger.error('ensure_decoded error', extra=extra)
+        extra = dict(thing=thing, single_encoded_dict=single_encoded_dict, double_encoded_dict=double_encoded_dict, error=e)
+        logger.error("ensure_decoded error", extra=extra)
         return None
 
 
@@ -137,31 +130,30 @@ def extract_keys_from_meta(meta, keys):
             elif isinstance(item, (list, tuple)):
                 extracted.extend(item)
             else:
-                logger.warning('unusual item in meta: %s', item)
+                logger.warning("unusual item in meta: %s", item)
     return extracted
 
 
 def build_comment_url(parent_permlink=None, author=None, permlink=None):
-    return '/'.join([parent_permlink, author, permlink])
+    return "/".join([parent_permlink, author, permlink])
 
 
 def canonicalize_url(url, **kwargs):
     try:
         canonical_url = w3lib.url.canonicalize_url(url, **kwargs)
     except Exception as e:
-        logger.warning('url preparation error', extra=dict(url=url, error=e))
+        logger.warning("url preparation error", extra=dict(url=url, error=e))
         return None
     if canonical_url != url:
-        logger.debug('canonical_url changed %s to %s', url, canonical_url)
+        logger.debug("canonical_url changed %s to %s", url, canonical_url)
     try:
         parsed_url = urlparse(canonical_url)
         if not parsed_url.scheme and not parsed_url.netloc:
-            _log = dict(
-                url=url, canonical_url=canonical_url, parsed_url=parsed_url)
-            logger.warning('bad url encountered', extra=_log)
+            _log = dict(url=url, canonical_url=canonical_url, parsed_url=parsed_url)
+            logger.warning("bad url encountered", extra=_log)
             return None
     except Exception as e:
-        logger.warning('url parse error', extra=dict(url=url, error=e))
+        logger.warning("url parse error", extra=dict(url=url, error=e))
         return None
     return canonical_url
 
@@ -172,7 +164,7 @@ def findall_patch_hunks(body=None):
 
 def detect_language(text):
     if not text or len(text) < MIN_TEXT_LENGTH_FOR_DETECTION:
-        logger.debug('not enough text to perform langdetect')
+        logger.debug("not enough text to perform langdetect")
         return None
     try:
         return detect(text)
@@ -186,7 +178,7 @@ def is_comment(item):
     The item can be a Post object or just a raw comment object from the
     blockchain.
     """
-    return item['parent_author'] != ""
+    return item["parent_author"] != ""
 
 
 def time_elapsed(posting_time):
@@ -202,7 +194,7 @@ def parse_time(block_time):
     """Take a string representation of time from the blockchain, and parse
     it into datetime object.
     """
-    return datetime.strptime(block_time, '%Y-%m-%dT%H:%M:%S')
+    return datetime.strptime(block_time, "%Y-%m-%dT%H:%M:%S")
 
 
 def time_diff(time1, time2):
@@ -210,8 +202,7 @@ def time_diff(time1, time2):
 
 
 def keep_in_dict(obj, allowed_keys=list()):
-    """ Prune a class or dictionary of all but allowed keys.
-    """
+    """Prune a class or dictionary of all but allowed keys."""
     if type(obj) == dict:
         items = obj.items()
     else:
@@ -221,8 +212,7 @@ def keep_in_dict(obj, allowed_keys=list()):
 
 
 def remove_from_dict(obj, remove_keys=list()):
-    """ Prune a class or dictionary of specified keys.
-    """
+    """Prune a class or dictionary of specified keys."""
     if type(obj) == dict:
         items = obj.items()
     else:
@@ -232,7 +222,7 @@ def remove_from_dict(obj, remove_keys=list()):
 
 
 def construct_identifier(*args):
-    """ Create a post identifier from comment/post object or arguments.
+    """Create a post identifier from comment/post object or arguments.
 
     Examples:
 
@@ -244,21 +234,20 @@ def construct_identifier(*args):
 
     if len(args) == 1:
         op = args[0]
-        author, permlink = op['author'], op['permlink']
+        author, permlink = op["author"], op["permlink"]
     elif len(args) == 2:
         author, permlink = args
     else:
-        raise ValueError(
-            'construct_identifier() received unparsable arguments')
+        raise ValueError("construct_identifier() received unparsable arguments")
 
     # remove the @ sign in case it was passed in by the user.
-    author = author.replace('@', '')
+    author = author.replace("@", "")
     fields = dict(author=author, permlink=permlink)
     return "{author}/{permlink}".format(**fields)
 
 
-def json_expand(json_op, key_name='json'):
-    """ Convert a string json object to Python dict in an op. """
+def json_expand(json_op, key_name="json"):
+    """Convert a string json object to Python dict in an op."""
     if type(json_op) == dict and key_name in json_op and json_op[key_name]:
         try:
             return update_in(json_op, [key_name], json.loads)
@@ -270,9 +259,9 @@ def json_expand(json_op, key_name='json'):
 
 def sanitize_permlink(permlink):
     permlink = permlink.strip()
-    permlink = re.sub("_|\s|\.", "-", permlink)
-    permlink = re.sub("[^\w-]", "", permlink)
-    permlink = re.sub("[^a-zA-Z0-9-]", "", permlink)
+    permlink = re.sub(r"_|\s|\.", "-", permlink)
+    permlink = re.sub(r"[^\w-]", "", permlink)
+    permlink = re.sub(r"[^a-zA-Z0-9-]", "", permlink)
     permlink = permlink.lower()
     return permlink
 
@@ -292,53 +281,49 @@ def derive_permlink(title, parent_permlink=None):
 def resolve_identifier(identifier):
 
     # in case the user supplied the @ sign.
-    identifier = identifier.replace('@', '')
+    identifier = identifier.replace("@", "")
 
-    match = re.match("([\w\-\.]*)/([\w\-]*)", identifier)
+    match = re.match(r"([\w\-\.]*)/([\w\-]*)", identifier)
     if not hasattr(match, "group"):
         raise ValueError("Invalid identifier")
     return match.group(1), match.group(2)
 
 
 def fmt_time(t):
-    """ Properly Format Time for permlinks
-    """
+    """Properly Format Time for permlinks"""
     return datetime.utcfromtimestamp(t).strftime("%Y%m%dt%H%M%S%Z")
 
 
 def fmt_time_string(t):
-    """ Properly Format Time for permlinks
-    """
-    return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S')
+    """Properly Format Time for permlinks"""
+    return datetime.strptime(t, "%Y-%m-%dT%H:%M:%S")
 
 
 def fmt_time_from_now(secs=0):
-    """ Properly Format Time that is `x` seconds in the future
+    """Properly Format Time that is `x` seconds in the future
 
-        :param int secs: Seconds to go in the future (`x>0`) or the
-                         past (`x<0`)
-        :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
-        :rtype: str
+    :param int secs: Seconds to go in the future (`x>0`) or the
+                     past (`x<0`)
+    :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
+    :rtype: str
 
     """
-    return datetime.utcfromtimestamp(time.time() + int(secs)).strftime(
-        '%Y-%m-%dT%H:%M:%S')
+    return datetime.utcfromtimestamp(time.time() + int(secs)).strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def env_unlocked():
-    """ Check if wallet passphrase is provided as ENV variable. """
-    return os.getenv('UNLOCK', False)
+    """Check if wallet passphrase is provided as ENV variable."""
+    return os.getenv("UNLOCK", False)
 
 
 # todo remove these
 def strfage(time, fmt=None):
-    """ Format time/age
-    """
+    """Format time/age"""
     if not hasattr(time, "days"):  # dirty hack
         now = datetime.utcnow()
         if isinstance(time, str):
-            time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-        time = (now - time)
+            time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
+        time = now - time
 
     d = {"days": time.days}
     d["hours"], rem = divmod(time.seconds, 3600)
@@ -355,8 +340,7 @@ def strfage(time, fmt=None):
 
 
 def strfdelta(tdelta, fmt):
-    """ Format time/age
-    """
+    """Format time/age"""
     if not tdelta or not hasattr(tdelta, "days"):  # dirty hack
         return None
 
@@ -367,7 +351,7 @@ def strfdelta(tdelta, fmt):
 
 
 def is_valid_account_name(name):
-    return re.match('^[a-z][a-z0-9\-.]{2,15}$', name)
+    return re.match(r"^[a-z][a-z0-9\-.]{2,15}$", name)
 
 
 def compat_compose_dictionary(dictionary, **kwargs):
@@ -394,19 +378,17 @@ def compat_json(data, ignore_dicts=False):
     """
     # if this is a unicode string, return its string representation
     if isinstance(data, unicode):
-        return data.encode('utf-8')
+        return data.encode("utf-8")
     # if this is a list of values, return list of byte-string values
     if isinstance(data, list):
         return [compat_json(item, ignore_dicts=True) for item in data]
     # if this is a dictionary, return dictionary of byte-string keys and values
     # but only if we haven't already byte-string it
     if isinstance(data, dict) and not ignore_dicts:
-        return {
-            compat_json(key, ignore_dicts=True): compat_json(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-        }
+        return {compat_json(key, ignore_dicts=True): compat_json(value, ignore_dicts=True) for key, value in data.iteritems()}
     # if it's anything else, return it in its original form
     return data
+
 
 def compat_bytes(item, encoding=None):
     """
@@ -442,7 +424,7 @@ def compat_bytes(item, encoding=None):
     :param encoding: optional encoding parameter to handle the Python 3.6 two argument 'bytes' method.
     :return: a bytes object that functions the same across 3.6 and 2.7
     """
-    if hasattr(item, '__bytes__'):
+    if hasattr(item, "__bytes__"):
         return item.__bytes__()
     else:
         if encoding:
@@ -461,7 +443,7 @@ def compat_chr(item):
     :param item: a length 1 string who's `chr` method needs to be invoked
     :return: the unichr code point of the single character string, item
     """
-    if sys.version >= '3.0':
+    if sys.version >= "3.0":
         return chr(item)
     else:
         return unichr(item)
