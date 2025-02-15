@@ -52,6 +52,7 @@ setuptools.setup(
         'futures; python_version < "3.0.0"',
         "future",
         "langdetect",
+        "pick>=2.4.1",
         "prettytable",
         "pycryptodome>=3.20.0",
         "pylibscrypt>=1.6.1",
