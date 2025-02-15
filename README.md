@@ -18,7 +18,9 @@ From Source:
 ```
 git clone https://github.com/steemit/steem-python.git
 cd steem-python
-python3 setup.py install        # python setup.py install for 2.7
+pip install build
+python -m build
+pip install .
 ```
 
 ## Homebrew Build Prereqs
